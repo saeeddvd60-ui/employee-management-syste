@@ -1,8 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'screens/login_screen.dart';
+import 'screens/dashboard_screen.dart';
+import 'controllers/auth_controller.dart';
+import 'utils/colors.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  
+  // Initialize GetX Controllers
+  Get.put(AuthController());
+  
   runApp(const MyApp());
 }
 
@@ -21,6 +30,7 @@ class MyApp extends StatelessWidget {
           color: AppColors.primary,
           elevation: 0,
           centerTitle: true,
+          iconTheme: IconThemeData(color: Colors.white),
         ),
         elevatedButtonTheme: ElevatedButtonThemeData(
           style: ElevatedButton.styleFrom(
@@ -34,63 +44,33 @@ class MyApp extends StatelessWidget {
             ),
           ),
         ),
-      ),
-      home: const HomePage(),
-    );
-  }
-}
-
-class AppColors {
-  static const Color primary = Color(0xFF1976D2);
-  static const Color secondary = Color(0xFF26A69A);
-  static const Color accent = Color(0xFFFF6F00);
-  static const Color background = Color(0xFFFAFAFA);
-  static const Color surface = Color(0xFFFFFFFF);
-  static const Color error = Color(0xFFB00020);
-  static const Color success = Color(0xFF4CAF50);
-  static const Color warning = Color(0xFFFFC107);
-}
-
-class HomePage extends StatelessWidget {
-  const HomePage({Key? key}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('سیستم مدیریت پرسنل'),
-      ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Text(
-              'خوش آمدید',
-              style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 20),
-            const Text(
-              'سیستم مدیریت حضور و کارکرد پرسنل',
-              style: TextStyle(fontSize: 18),
-            ),
-            const SizedBox(height: 40),
-            ElevatedButton(
-              onPressed: () {
-                Get.snackbar(
-                  'اطلاعات',
-                  'در حال توسعه است',
-                  backgroundColor: AppColors.primary,
-                  colorText: Colors.white,
-                );
-              },
-              child: const Padding(
-                padding: EdgeInsets.symmetric(horizontal: 30, vertical: 15),
-                child: Text('شروع کنید'),
-              ),
-            ),
-          ],
+        floatingActionButtonTheme: const FloatingActionButtonThemeData(
+          backgroundColor: AppColors.primary,
+        ),
+        inputDecorationTheme: InputDecorationTheme(
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+          filled: true,
+          fillColor: AppColors.surface,
+          contentPadding: const EdgeInsets.symmetric(
+            horizontal: 16,
+            vertical: 12,
+          ),
         ),
       ),
+      home: _buildHome(),
     );
+  }
+
+  Widget _buildHome() {
+    final authController = Get.find<AuthController>();
+    return Obx(() {
+      if (authController.isLoggedIn.value) {
+        return const DashboardScreen();
+      } else {
+        return const LoginScreen();
+      }
+    });
   }
 }
